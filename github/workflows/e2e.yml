@@ -1,0 +1,30 @@
+name: E2E tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Установка зависимостей
+        run: npm install
+      - name: Установка браузера Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Запуск тестов
+        run: npm test
+      - name: Сохранить отчёт, если тесты упали
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
